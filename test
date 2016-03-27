@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 #pocet cisel bud zadam nebo 10 :)
 if [ $# -lt 1 ];then 
@@ -8,15 +8,14 @@ else
 fi;
 
 #preklad cpp zdrojaku
-mpic++ --prefix /usr/local/share/OpenMPI -o oets odd-even.cpp
-
+mpiCC --prefix /usr/local/share/OpenMPI -o mes mes.c -lm
 
 #vyrobeni souboru s random cisly
-dd if=/dev/random bs=1 count=$numbers of=numbers
+dd if=/dev/urandom bs=1 count=$numbers of=numbers > /dev/null 2>&1
 
 #spusteni
-mpirun --prefix /usr/local/share/OpenMPI -np $numbers oets
+mpirun --prefix /usr/local/share/OpenMPI -np $((2*$numbers -1)) mes
 
 #uklid
-rm -f oets numbers
+rm -f mes  numbers
 

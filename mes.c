@@ -5,9 +5,9 @@
 #include <stdbool.h>
 
 #define TAG 0
-#define EMPTY 256
-#define SEND(cx, id) MPI_Send(&cx, 1, MPI_INT, id, TAG, MPI_COMM_WORLD)
-#define RECV(cx, id) MPI_Recv(&cx, 1, MPI_INT, id, TAG, MPI_COMM_WORLD, &stat)
+#define EMPTY 10000
+#define SEND(number, id) MPI_Send(&number, 1, MPI_INT, id, TAG, MPI_COMM_WORLD)
+#define RECV(number, id) MPI_Recv(&number, 1, MPI_INT, id, TAG, MPI_COMM_WORLD, &stat)
 
 
 bool leaf(int i, int n)
@@ -27,7 +27,6 @@ int main(int argc, char * argv[])
 	MPI_Init(&argc,&argv);
 	MPI_Comm_size(MPI_COMM_WORLD, &p_count);
 	MPI_Comm_rank(MPI_COMM_WORLD, &cpu_id);
-
 
 	n = (p_count+1)/2;
 
@@ -49,10 +48,9 @@ int main(int argc, char * argv[])
 		}
 
 		printf("\n");
-
 		number = EMPTY;
 
-		while(recv_id >= 0)
+		while(recv_id >= n)
 		{
 			SEND(number, recv_id);
 			recv_id--;
@@ -62,15 +60,18 @@ int main(int argc, char * argv[])
 	}
 
 
-	if(leaf(cpu_id, n))
+	if(leaf(cpu_id, n) || n == 1)
 		RECV(number, 0);
 	else
 		number = EMPTY;
 
+	if(n == 1)
+		printf("%d\n", number);
+
 	for(int i = 0; i < 2*n+log2(n)-1; ++i)
 	{
-		int left;
-		int right;
+		int left = EMPTY;
+		int right = EMPTY;
 
 		if(leaf(cpu_id, n))
 		{
@@ -81,7 +82,7 @@ int main(int argc, char * argv[])
 		{
 			RECV(left, cpu_id * 2 + 1);
 			RECV(right, cpu_id * 2 + 2);
-			
+
 			if(number == EMPTY)
 			{
 				if(left < right)
@@ -89,7 +90,7 @@ int main(int argc, char * argv[])
 					number = left;
 					left = EMPTY;
 				}
-				else 
+				else
 				{
 					number = right;
 					right = EMPTY;
@@ -110,6 +111,7 @@ int main(int argc, char * argv[])
 				printf("%d\n", number);
 				number = EMPTY;
 			}
+
 		}
 	}
 
