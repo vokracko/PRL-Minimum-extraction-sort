@@ -1,0 +1,76 @@
+\documentclass[12pt,a4paper,titlepage,final]{article}
+\usepackage[czech]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage[bookmarksopen,colorlinks,plainpages=false,urlcolor=blue,unicode]{hyperref}
+\usepackage{url}
+\usepackage{float}
+\usepackage{ifthen}
+\usepackage[dvipdf]{graphicx}
+\usepackage[top=3.5cm, left=2.5cm, text={17cm, 24cm}, ignorefoot]{geometry}
+
+\begin{document}
+\newpage
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% titulní strana
+\def\name{Lukáš Vokráčko}
+\def\login{xvokra00}
+\def\subject{Paralelní a distribuované algoritmy}
+\def\project{Minimum Extraction Sort}
+
+\newboolean{frontpage}
+% \setboolean{frontpage}{true}
+\setboolean{frontpage}{false}
+
+\ifthenelse{\boolean{frontpage}}
+{
+	\pagestyle{empty}
+	\input{title.tex}
+	\tableofcontents
+	\newpage
+	\pagestyle{plain}
+}
+{
+	\pagestyle{plain}
+	% \vspace*{2px}
+	\hfill \name, \login \\
+	\vspace*{5px}
+	{\LARGE \subject}  \\
+	{\LARGE \project}  \\
+}
+
+\pagenumbering{arabic}
+\setcounter{page}{1}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Analýza algoritmu}
+Rozbor a analýzu algoritmu, odvoďte jeho teoretickou složitost (časovou a prostorovou náročnost, celkovou cenu).
+
+\section{Implementace}
+Program je implementován v jazyce C s využití knihovny \url{https://www.open-mpi.org/}.
+Pro spuštění je vytvořen skript \texttt{test}, který vygeneruje soubor \texttt{numbers} s náhodnými čísly,
+přeloží program \texttt{mes} a spustí ho v prostředí \texttt{MPI}.
+
+\section{Experimenty}
+Program byl testován pro počet hodnot odpovídajícím $2^n$ pro $n = 1 .. 6$. Pro větší počet hodnot se již nepodařilo spustit daný počet procesů.
+Pokudčet hodnot mezi mocninami testována nebyla, protože algoritmus \texttt{Minimum extraction sort} pro $(2^n,2^{n+1})$ využívá vždy $2^{n+2}-1$ procesorů,
+tudíž by získané hodnoty odpovídaly hodnotám získaných při testování s počtem hodnot $2^{n+1}$.
+
+Testování probíhalo na stroji s jedním procesorem, tudíž MPI simulovalo procesory procesy. Z toho
+vyplívá i naměřená časová složitost $O (n^2)$, která odpovídá celkové ceně algoritmu $c(n) = p(n)*t(n) = O (n) * O (n)$,
+neboť na jednoprocesorovém systému nepoběží úlohy paralelně.
+\includegraphics[width=14cm,keepaspectratio]{time.eps}
+
+\section{Komunikační protokol}
+Každý uzel vyjma kořene odesílá a příjímá svoji hodnotu od přímého rodičovského uzlu.
+Pro nelistové uzly dochází po přijetí hodnot obou synů k porovnání jejich hodnot a 
+uzlu, jež poslal menší hodnotu je odeslána zpět hodnota reprezentující prázdný uzel zatímco druhému uzlu
+je odeslána zpět jeho původní hodnota.
+
+
+\includegraphics[width=14cm,keepaspectratio]{sequence.eps}
+
+\section{Závěr}
+Závěr, ve kterém zhodnotíte dosažené výsledky, zamyšlení, zdali experimenty potvrdily teoretickou složitost, případně vysvětlení, proč tato teoretická složitost nebyla dodržena.
+
+\end{document}
