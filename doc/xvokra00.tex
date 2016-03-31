@@ -44,33 +44,39 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Analýza algoritmu}
-Rozbor a analýzu algoritmu, odvoďte jeho teoretickou složitost (časovou a prostorovou náročnost, celkovou cenu).
+Algoritmus \texttt{Minimum extraction sort} využívá k řazení stromové struktury, z čehož vyplývá, že pro $n$ prvků bude mít strom 
+$log(n) + 1$ úrovní. Jelikož všechny prvky začínají svou cestu stromem v listovém uzlu, musí každý prvek projít $log(n)$ úrovněmi, než se dostane do kořenu.
+Kořen potřebuje dva kroky pro zpracování každého prvku, tudíž výsledná časová složitost $t(n)$ je $2n$ pro každý prvek kromě prvního a $log(n)$ pro první prvek.
+Výsledná časová složitost tedy bude $t(n) = 2*n - 1 + log(n)$. Prostorová složitost $p(n)$ je  rovna počtu potřebných procesorů, který činí $2*n - 1$, neboť každý prvek vyžaduje samostatný procesor plus $n-1$ procesorů pro každý nelistový uzel stromu. Celková cena je pak vypočtena jako $c(n) = t(n) * p(n)$.\\
+$t(n) = 2*n-1+log(n) = O(n)$ \\
+$p(n) = 2*n-1 = O(n)$ \\
+$c(n) = O(n)*O(n)= O(n^2) $.
 
 \section{Implementace}
 Program je implementován v jazyce C s využití knihovny \url{https://www.open-mpi.org/}.
 Pro spuštění je vytvořen skript \texttt{test}, který vygeneruje soubor \texttt{numbers} s náhodnými čísly,
-přeloží program \texttt{mes} a spustí ho v prostředí \texttt{MPI}.
+přeloží program \texttt{mes} a spustí ho v prostředí \texttt{MPI}. Výstupem programu je vypsaná neseřazená posloupnost čísel na prvním řádku.
+Na další řádcích následuje již seřazená posloupnost a to od nejmenšího prvku.
 
 \section{Experimenty}
-Program byl testován pro počet hodnot odpovídajícím $2^n$ pro $n = 1 .. 6$. Pro větší počet hodnot se již nepodařilo spustit daný počet procesů.
-Pokudčet hodnot mezi mocninami testována nebyla, protože algoritmus \texttt{Minimum extraction sort} pro $(2^n,2^{n+1})$ využívá vždy $2^{n+2}-1$ procesorů,
-tudíž by získané hodnoty odpovídaly hodnotám získaných při testování s počtem hodnot $2^{n+1}$.
+Program byl testován pro počet prvků odpovídajícím $2^n$ pro $n = 1 .. 6$. Pro větší množství prvků se již nepodařilo spustit odpovídající počet procesorů.
+Počty prvků, který by neodpovídal mocninám dvou testován nebyl, neboť algoritmus \texttt{Minimum extraction sort} pro $(2^n,2^{n+1})$ prvků díky své stromové struktuře vždy
+vyžaduje $2^{n+2}-1$ procesorů a tudíž by se výsledné hodnoty shodovaly s naměřenými hodnotami pro $2^{n+1}$ prvků.
 
 Testování probíhalo na stroji s jedním procesorem, tudíž MPI simulovalo procesory procesy. Z toho
-vyplívá i naměřená časová složitost $O (n^2)$, která odpovídá celkové ceně algoritmu $c(n) = p(n)*t(n) = O (n) * O (n)$,
-neboť na jednoprocesorovém systému nepoběží úlohy paralelně.
+vyplývá i naměřená časová složitost $O (n^2)$, která odpovídá celkové ceně algoritmu $c(n) = p(n)*t(n) = O (n) * O (n)$,
+neboť na jednoprocesorovém systému nepoběží úlohy paralelně. V následujícím grafu jsou zaneseny hodnoty naměřené pro řazení $2^n, n = {1,2,..,6}$ hodnot.
 \includegraphics[width=14cm,keepaspectratio]{time.eps}
 
 \section{Komunikační protokol}
-Každý uzel vyjma kořene odesílá a příjímá svoji hodnotu od přímého rodičovského uzlu.
+Každý uzel vyjma kořene odesílá a přijímá svoji hodnotu od přímého rodičovského uzlu.
 Pro nelistové uzly dochází po přijetí hodnot obou synů k porovnání jejich hodnot a 
 uzlu, jež poslal menší hodnotu je odeslána zpět hodnota reprezentující prázdný uzel zatímco druhému uzlu
-je odeslána zpět jeho původní hodnota.
-
-
+je odeslána zpět jeho původní hodnota. \\
 \includegraphics[width=14cm,keepaspectratio]{sequence.eps}
 
 \section{Závěr}
-Závěr, ve kterém zhodnotíte dosažené výsledky, zamyšlení, zdali experimenty potvrdily teoretickou složitost, případně vysvětlení, proč tato teoretická složitost nebyla dodržena.
+Naměřené hodnoty při experimentování neodpovídají časové složitosti $t(n) = O(n)$, neboť byly prováděny na jednoprocesorovém stroji a tudíž by naměřené hodnoty měly 
+odpovídat celkové ceně algoritmu $c(t) = O(n^2)$, neboť všechny kroky všech procesorů jsou vykonávány sekvenčně, čemuž také odpovídají naměřené výsledky.
 
 \end{document}
